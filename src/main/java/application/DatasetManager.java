@@ -24,26 +24,32 @@ public class DatasetManager {
         return datasets;
     }
 
-    //Retornar um dataset contendo a informacao da valorizacao dos ativos de todos os datasets
+    //Retorna um dataset contendo a informacao da valorizacao dos ativos de todos os datasets
     public Dataset<Row> getDatasetValorizacaoAtivos(ArrayList<Dataset<Row>> datasets) {
-        Dataset<Row> dataset = null;
         for (int i = 0; i < datasets.size(); i++) {
-            //Registra a variacao mensal
+            //Registra a variacao por dia
             datasets.set(i, getDatasetInfo(datasets.get(i), "Dados",
                     "select *, (preco_fechamento-preco_abertura) as variacao from Dados"));
 
-            //Registra a variacao anual
+            //Registra a variacao por mes
             datasets.set(i, getDatasetInfo(datasets.get(i), "DadosMensais",
-                    "select distinct ano as ano, mes as mes, codigo_negociacao as codigo_negociacao, descricao_negociacao as descricao_negociacao,sum(variacao) as variacao from DadosMensais" +
-                            "        Group by ano, mes, codigo_negociacao, descricao_negociacao"));
-            datasets.get(i).show(2);
-            datasets.get(i).filter("codigo_negociacao = 'ITUB4'").show();
+                    "select distinct ano as ano, mes as mes, codigo_negociacao as codigo_negociacao, descricao_negociacao as descricao_negociacao, prazo_dias_mercado as prazo_dias_mercado, sum(variacao) as variacao from DadosMensais" +
+                            "        Group by ano, mes, codigo_negociacao, descricao_negociacao, prazo_dias_mercado"));
         }
-        return dataset;
+
+        return unirDatasets(datasets);
     }
 
     private Dataset<Row> getDatasetInfo(Dataset<Row> dataset, String tempTable, String querySQL) {
         dataset.registerTempTable(tempTable);
         return dataset.sqlContext().sql(querySQL);
+    }
+
+    private Dataset<Row> unirDatasets(ArrayList<Dataset<Row>> datasets) {
+        Dataset<Row> dataset = datasets.get(0);
+        for (int i = 1; i < datasets.size(); i++) {
+            dataset = dataset.union(datasets.get(i));
+        }
+        return dataset;
     }
 }
