@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class DatasetManager {
     private SparkSession sparkSession;
-
+    private Dataset<Row> datasetVariacaoDia;
     public DatasetManager(SparkSession sparkSession) {
         this.sparkSession = sparkSession;
     }
@@ -30,10 +30,10 @@ public class DatasetManager {
     //Retorna um dataset contendo a informacao da valorizacao dos ativos de todos os datasets por mes
     public Dataset<Row> getDatasetValorizacao(Dataset<Row> dataset) {
         //Registra a variacao por dia
-        dataset = getDatasetVariacaoDia(dataset);
+        datasetVariacaoDia = getDatasetVariacaoDia(dataset);
 
         //Registra a variacao por mes
-        dataset = getDatasetVariacaoMes(dataset);
+        dataset = getDatasetVariacaoMes(datasetVariacaoDia);
         return dataset;
     }
 
