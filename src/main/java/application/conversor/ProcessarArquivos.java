@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class ProcessarArquivos {
-    private final String OUTPUT_DIRECTORY = "csvsPaths" + File.separator;
+    private final String OUTPUT_DIRECTORY = "csvFiles" + File.separator;
     private ArrayList<String> csvsPaths = new ArrayList<>();
 
     public ProcessarArquivos(String directory) {
