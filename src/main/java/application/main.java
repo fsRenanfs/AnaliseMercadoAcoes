@@ -22,8 +22,8 @@ public class main {
 
         //Retorna um Dataset com as informacoes da valorizacao dos titulos nos anos
         datasetValorizacao = datasetManager.getDatasetValorizacao(dataset);
-
-        datasetValorizacao.filter("codigo_negociacao = 'SANB11'").orderBy("ano", "mes").show(100);
+        //  datasetValorizacao.show(2);
+        datasetValorizacao.filter("codigo_negociacao = 'ITUB4'").orderBy("ano", "mes").show(100);
 
         sparkSession.stop();
         sparkSession.close();
