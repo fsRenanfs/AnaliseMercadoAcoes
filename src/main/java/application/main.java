@@ -6,11 +6,17 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import javax.xml.crypto.Data;
+
 
 public class main {
 
     public static void main(String[] args) {
-        SparkSession sparkSession = SparkSession.builder().appName("application.main").config("spark.master", "local").config("log4j.rootCategory", "ERROR").getOrCreate();
+        SparkSession sparkSession = SparkSession.builder().appName("application.main").config("spark.master", "local").getOrCreate();
+
+        //Set log level
+        sparkSession.sparkContext().setLogLevel("ERROR");
+
         DatasetManager datasetManager = new DatasetManager(sparkSession);
         Dataset<Row> dataset, datasetValorizacaoMensal;
         Cases cases;
@@ -25,10 +31,13 @@ public class main {
         datasetValorizacaoMensal = datasetManager.getDatasetValorizacao(dataset);
 
         //Instancia classe para resolução dos cases
-        cases = new Cases(datasetValorizacaoMensal);
+        cases = new Cases(datasetValorizacaoMensal, datasetManager);
+        Dataset<Row> case1 = cases.getCase1();
+        //case1.show(1);
 
-        cases.getCase4().show(100);
 
+        //Case 4
+        //  cases.getCase4().show();
 
         sparkSession.stop();
         sparkSession.close();
