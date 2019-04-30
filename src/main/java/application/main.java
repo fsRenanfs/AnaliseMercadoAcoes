@@ -27,8 +27,7 @@ public class main {
         //Instancia classe para resolução dos cases
         cases = new Cases(datasetValorizacaoMensal);
 
-        cases.runCase4();
-
+        cases.getCase4().show(100);
 
 
         sparkSession.stop();

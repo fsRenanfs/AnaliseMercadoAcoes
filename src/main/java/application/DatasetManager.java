@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class DatasetManager {
     private SparkSession sparkSession;
     private Dataset<Row> datasetVariacaoDia;
+
     public DatasetManager(SparkSession sparkSession) {
         this.sparkSession = sparkSession;
     }
@@ -33,8 +34,7 @@ public class DatasetManager {
         datasetVariacaoDia = getDatasetVariacaoDia(dataset);
 
         //Registra a variacao por mes
-        dataset = getDatasetVariacaoMes(datasetVariacaoDia);
-        return dataset;
+        return  getDatasetVariacaoMes(datasetVariacaoDia);
     }
 
     private Dataset<Row> getDatasetVariacaoMes(Dataset<Row> datasetVariacaoDia) {
@@ -46,7 +46,8 @@ public class DatasetManager {
                         "   descricao_negociacao as descricao_negociacao, " +
                         "   prazo_dias_mercado as prazo_dias_mercado, " +
                         "   sum(variacao)/100 as variacao, " +
-                        "   sum(percentual_variacao) as percentual_variacao " +
+                        "   sum(percentual_variacao) as percentual_variacao, " +
+                        "   substring(max(data_preco_fechamento),9,13)/100 as preco_fechamento " +
                         "from DadosMensais " +
                         "Group by ano, mes, codigo_negociacao, descricao_negociacao, prazo_dias_mercado");
     }
@@ -55,7 +56,8 @@ public class DatasetManager {
         return getDatasetInfo(dataset, "Dados",
                 "select *, " +
                         "   (preco_fechamento-preco_abertura) as variacao," +
-                        "   ((preco_fechamento-preco_abertura)/preco_abertura*100) as percentual_variacao " +
+                        "   ((preco_fechamento-preco_abertura)/preco_abertura*100) as percentual_variacao," +
+                        "   concat(ano,mes,dia,preco_fechamento) as data_preco_fechamento " +
                         "from Dados");
 
     }
