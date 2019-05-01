@@ -70,8 +70,12 @@ public class DatasetManager {
     }
 
     public Dataset<Row> getDatasetInfo(Dataset<Row> dataset, String tempTable, String querySQL) {
+        Dataset<Row> query;
         dataset.registerTempTable(tempTable);
-        return dataset.sqlContext().sql(querySQL);
+        query = dataset.sqlContext().sql(querySQL);
+        dataset.sqlContext().dropTempTable(tempTable);
+        return query;
+
     }
 
     public Dataset<Row> unirDatasets(ArrayList<Dataset<Row>> datasets) {

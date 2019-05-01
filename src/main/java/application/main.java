@@ -2,9 +2,11 @@ package application;
 
 import application.Cases.Cases;
 import application.conversor.ProcessarArquivos;
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+
 
 import javax.xml.crypto.Data;
 
@@ -32,12 +34,17 @@ public class main {
 
         //Instancia classe para resolução dos cases
         cases = new Cases(datasetValorizacaoMensal, datasetManager);
-        Dataset<Row> case1 = cases.getCase1();
-        //case1.show(1);
+        //Case 1
+       // cases.getCase1().show(100);
 
+        //Case 2
+       // cases.getCase2().show(100);
+
+        //Case 3
+        cases.getCase3().show(150);
 
         //Case 4
-        //  cases.getCase4().show();
+      //  cases.getCase4().show(100);
 
         sparkSession.stop();
         sparkSession.close();

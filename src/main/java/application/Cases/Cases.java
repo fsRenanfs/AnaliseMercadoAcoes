@@ -1,13 +1,11 @@
 package application.Cases;
 
 import application.DatasetManager;
-import org.apache.spark.api.java.JavaRDD;
+
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-import javax.xml.crypto.Data;
-import java.util.Arrays;
-import java.util.List;
 
 public class Cases {
 
@@ -21,15 +19,28 @@ public class Cases {
         this.principaisAtivosAnos = getVariacaoAnos();
     }
 
-    //CASE 1
+    //CASE 1 - 3 ativos mais valorizados nos anos
     public Dataset<Row> getCase1() {
-        principaisAtivosAnos.show(1);
-        return dataset.filter("codigo_negociacao").join(principaisAtivosAnos, principaisAtivosAnos.col("codigo_negociacao").equalTo(dataset.col("codigo_negociacao")));
-
+        Dataset<Row> case1 = principaisAtivosAnos.orderBy(principaisAtivosAnos.col("variacao").desc()).limit(3);
+        return joinVariacaoMesesVariacaoAnos(dataset, case1);
     }
 
+    //CASE 2 - 3 ativos mais desvalorizados nos anos
+    public Dataset<Row> getCase2() {
+        Dataset<Row> case2 = principaisAtivosAnos.orderBy(principaisAtivosAnos.col("variacao").asc()).limit(3);
+        return joinVariacaoMesesVariacaoAnos(dataset, case2);
+    }
 
+    //CASE 3 - Valorizacao Bancos: BBDC4 – Bradesco; ITUB4 – Itaú; BBAS3 - Banco do Brasil e SANB11 Santander
+    public Dataset<Row> getCase3() {
+        Dataset<Row> case3 = principaisAtivosAnos.filter("codigo_negociacao in ('BBAS3','BBDC4','ITUB4','SANB11')");
+        return joinVariacaoMesesVariacaoAnos(dataset, case3);
+    }
 
+    //CASE 4 - Periodos em que houve maior valorizacao e desvalorizacao Ativos Santander
+    public Dataset<Row> getCase4() {
+        return dataset.filter("codigo_negociacao = 'SANB11'");
+    }
 
     public Dataset<Row> getVariacaoAnos() {
         Dataset<Row> anos = datasetManager.getDatasetInfo(dataset, "Temp",
@@ -43,11 +54,35 @@ public class Cases {
         return datasetManager.getVariacao(anos);
     }
 
-    //CASE 2
+    private Dataset<Row> joinVariacaoMesesVariacaoAnos(Dataset<Row> mes, Dataset<Row> ano) {
+        //Registra tabela temporaria anos
+        Dataset<Row> valorizados = ano;
+        valorizados.registerTempTable("DadosAno");
 
-    //CASE 4 - Periodos em que houve maior valorizacao e desvalorizacao Ativos Santander
-    public Dataset<Row> getCase4() {
-        return dataset.filter("codigo_negociacao = 'SANB11'");
+        //Registra tabela temporaria meses
+        valorizados = mes;
+        valorizados.registerTempTable("DadosMes");
+
+        //Efetua select com join
+        valorizados = valorizados.sqlContext().sql(
+                "select " +
+                        "   mes.ano, " +
+                        "   mes.mes, " +
+                        "   mes.codigo_negociacao, " +
+                        "   mes.descricao_negociacao, " +
+                        "   mes.prazo_dias_mercado, " +
+                        "   mes.preco_abertura, " +
+                        "   mes.preco_fechamento, " +
+                        "   mes.variacao, " +
+                        "   mes.percentual_variacao, " +
+                        "   ano.variacao as variacao_total " +
+                        "from DadosMes mes " +
+                        "   inner join DadosAno ano on " +
+                        "       mes.codigo_negociacao = ano.codigo_negociacao and " +
+                        "       mes.descricao_negociacao = ano.descricao_negociacao and " +
+                        "       (mes.prazo_dias_mercado = ano.prazo_dias_mercado or isnull(mes.prazo_dias_mercado)=isnull(ano.prazo_dias_mercado))").
+                orderBy("codigo_negociacao", "ano", "mes");
+
+        return valorizados;
     }
-
 }
