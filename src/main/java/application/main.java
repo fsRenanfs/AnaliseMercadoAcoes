@@ -9,6 +9,7 @@ import org.apache.spark.sql.SparkSession;
 
 
 import javax.xml.crypto.Data;
+import java.io.File;
 
 
 public class main {
@@ -17,7 +18,7 @@ public class main {
         SparkSession sparkSession = SparkSession.builder().appName("application.main").config("spark.master", "local").getOrCreate();
 
         //Set log level
-        sparkSession.sparkContext().setLogLevel("ERROR");
+        //sparkSession.sparkContext().setLogLevel("ERROR");
 
         DatasetManager datasetManager = new DatasetManager(sparkSession);
         Dataset<Row> dataset, datasetValorizacaoMensal;
@@ -34,21 +35,26 @@ public class main {
 
         //Instancia classe para resolução dos cases
         cases = new Cases(datasetValorizacaoMensal, datasetManager);
+
+
         //Case 1
-       // cases.getCase1().show(100);
+        generateCSVFile(cases.getCase1(), "Case1");
 
         //Case 2
-       // cases.getCase2().show(100);
+        generateCSVFile(cases.getCase2(), "Case2");
 
         //Case 3
-        cases.getCase3().show(150);
+        generateCSVFile(cases.getCase3(), "Case3");
 
         //Case 4
-      //  cases.getCase4().show(100);
+        generateCSVFile(cases.getCase4(), "Case4");
 
         sparkSession.stop();
         sparkSession.close();
     }
 
+    public static void generateCSVFile(Dataset<Row> dataset, String fileName) {
+        dataset.coalesce(1).write().option("header", "true").csv("outputCases" + File.separator + fileName);
+    }
 
 }
