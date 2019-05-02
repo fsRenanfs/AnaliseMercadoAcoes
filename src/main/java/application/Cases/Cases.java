@@ -39,7 +39,9 @@ public class Cases {
 
     //CASE 4 - Periodos em que houve maior valorizacao e desvalorizacao Ativos Santander
     public Dataset<Row> getCase4() {
-        return dataset.filter("codigo_negociacao = 'SANB11'");
+        return dataset.select("ano", "mes", "codigo_negociacao", "descricao_negociacao", "preco_abertura", "preco_fechamento", "variacao", "percentual_variacao").
+                filter("codigo_negociacao = 'SANB11'").
+                orderBy("ano", "mes");
     }
 
     public Dataset<Row> getVariacaoAnos() {
@@ -81,7 +83,7 @@ public class Cases {
                         "       mes.codigo_negociacao = ano.codigo_negociacao and " +
                         "       mes.descricao_negociacao = ano.descricao_negociacao and " +
                         "       (mes.prazo_dias_mercado = ano.prazo_dias_mercado or isnull(mes.prazo_dias_mercado)=isnull(ano.prazo_dias_mercado))").
-                orderBy("codigo_negociacao", "ano", "mes");
+                orderBy("variacao_total", "ano", "mes");
 
         return valorizados;
     }
