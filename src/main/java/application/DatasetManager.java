@@ -47,7 +47,10 @@ public class DatasetManager {
                         "   min(data_preco_abertura) as data_preco_abertura, " +
                         "   max(data_preco_fechamento) as data_preco_fechamento " +
                         "from DadosMensais " +
-                        "Group by ano, mes, codigo_negociacao, descricao_negociacao, prazo_dias_mercado");
+                        "Group by ano, mes, codigo_negociacao, descricao_negociacao, prazo_dias_mercado").
+                filter("descricao_negociacao not like '%IBOVE%' " +
+                        "and descricao_negociacao not like '%BOVESPA%' " +
+                        "and substring(codigo_negociacao,length(codigo_negociacao),1) not in ('F','T')");
         return getVariacao(mes);
 
     }
